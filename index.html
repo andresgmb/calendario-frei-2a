@@ -33,7 +33,7 @@
           var(--line) 28px
         );
       background-size: 100% 28px;
-      background-attachment: fixed;
+      background-attachment: scroll;
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
@@ -132,12 +132,13 @@
     .cal-body { display: grid; grid-template-columns: repeat(5,1fr); }
 
     .cal-cell {
+      min-width: 0;        /* permite que el grid comprima la celda */
+      overflow: hidden;    /* recorta todo lo que no quepa */
       min-height: 72px; padding: 5px 4px 3px;
       border-right: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
       cursor: pointer; display: flex; flex-direction: column;
       transition: background .13s;
-      position: relative;
     }
     .cal-cell:nth-child(5n) { border-right: none; }
     .cal-cell:hover { background: #EFF6FF; }
@@ -157,13 +158,15 @@
       font-size: 8px; font-weight: 800; color: #92400E;
       letter-spacing: .2px; line-height: 1.2; margin-top: 1px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
     }
-    .cell-evs { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; flex: 1; }
+    .cell-evs { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; flex: 1; min-width: 0; }
     .ev-chip {
       font-size: 9px; font-weight: 800;
-      padding: 2px 5px; border-radius: 4px;
+      padding: 2px 4px; border-radius: 4px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       color: #fff; line-height: 1.4;
+      max-width: 100%;
     }
     .ev-chip.tp-prueba   { background: #E63946; }
     .ev-chip.tp-tarea    { background: #E9941B; }
