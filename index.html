@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Calendario Eduardo Frei · 2ºA</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ground:   #F5F0E8;
+      --surface:  #FFFFFF;
+      --text:     #1A1A2E;
+      --muted:    #6B7280;
+      --border:   #E5E0D5;
+      --line:     #D0E4F7;
+      --accent:   #E63946;
+      --blue:     #1D70B8;
+      --hdr-h:    60px;
+      --tab-h:    46px;
+    }
+
+    /* ── Notebook paper background ─────────────────────────── */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background-color: var(--ground);
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 27px,
+          var(--line) 27px,
+          var(--line) 28px
+        );
+      background-size: 100% 28px;
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ────────────────────────────────────────────── */
+    .hdr {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--hdr-h);
+      background: #111827;
+      color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 18px;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.28);
+    }
+    .hdr-text strong {
+      display: block;
+      font-size: 15px; font-weight: 900; letter-spacing: -.3px; line-height: 1.2;
+    }
+    .hdr-text span {
+      font-size: 10px; letter-spacing: .6px; text-transform: uppercase;
+      opacity: .55; margin-top: 1px; display: block;
+    }
+    .hdr-badge {
+      background: var(--accent); color: #fff;
+      font-size: 12px; font-weight: 900; padding: 4px 11px;
+      border-radius: 20px; letter-spacing: .2px;
+    }
+
+    /* ── Tabs ───────────────────────────────────────────────── */
+    .tabs {
+      position: fixed; top: var(--hdr-h); left: 0; right: 0;
+      height: var(--tab-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; z-index: 99;
+    }
+    .tab {
+      flex: 1; background: none; border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 5px;
+      padding-bottom: 2px;
+      transition: color .18s, border-color .18s;
+      font-family: inherit;
+    }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* ── Content ────────────────────────────────────────────── */
+    .content {
+      padding-top: calc(var(--hdr-h) + var(--tab-h));
+      min-height: 100vh;
+    }
+    .panel {
+      display: none;
+      padding: 14px 14px 100px;
+      max-width: 680px; margin: 0 auto;
+    }
+    .panel.active { display: block; }
+
+    /* ── Calendar nav ───────────────────────────────────────── */
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border-radius: 12px;
+      padding: 10px 14px; margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .cal-nav-btn {
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 8px; width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px; color: var(--text);
+      transition: background .14s;
+      font-family: inherit;
+    }
+    .cal-nav-btn:hover { background: var(--ground); }
+    .cal-month { font-size: 17px; font-weight: 900; letter-spacing: -.3px; }
+
+    /* ── Calendar grid ──────────────────────────────────────── */
+    .cal-wrap {
+      background: var(--surface); border-radius: 14px;
+      overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    }
+    .cal-head {
+      display: grid; grid-template-columns: repeat(5,1fr);
+      border-bottom: 1px solid var(--border);
+    }
+    .cal-head-cell {
+      padding: 8px 4px; text-align: center;
+      font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--muted);
+    }
+    .cal-body { display: grid; grid-template-columns: repeat(5,1fr); }
+
+    .cal-cell {
+      min-height: 72px; padding: 5px 4px 3px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; display: flex; flex-direction: column;
+      transition: background .13s;
+      position: relative;
+    }
+    .cal-cell:nth-child(5n) { border-right: none; }
+    .cal-cell:hover { background: #EFF6FF; }
+    .cal-cell.dim .day-n { opacity: .28; }
+    .cal-cell.feriado { background: #FFFBEB; }
+    .cal-cell.today .day-n {
+      background: var(--accent); color: #fff; border-radius: 50%;
+    }
+
+    .day-n {
+      width: 24px; height: 24px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; line-height: 1;
+      align-self: flex-start; flex-shrink: 0;
+    }
+    .feriado-lbl {
+      font-size: 8px; font-weight: 800; color: #92400E;
+      letter-spacing: .2px; line-height: 1.2; margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cell-evs { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; flex: 1; }
+    .ev-chip {
+      font-size: 9px; font-weight: 800;
+      padding: 2px 5px; border-radius: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: #fff; line-height: 1.4;
+    }
+    .ev-chip.tp-prueba   { background: #E63946; }
+    .ev-chip.tp-tarea    { background: #E9941B; }
+    .ev-chip.tp-actividad{ background: #2CB67D; }
+    .ev-more { font-size: 9px; font-weight: 700; color: var(--muted); padding: 1px 4px; }
+
+    /* ── Legend ─────────────────────────────────────────────── */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      padding: 10px 14px; margin-top: 10px;
+      background: var(--surface); border-radius: 10px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-weight: 600; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+    /* ── Horario ─────────────────────────────────────────────── */
+    .horario-card {
+      background: var(--surface); border-radius: 14px;
+      padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,.07);
+    }
+    .horario-card h2 {
+      font-size: 15px; font-weight: 900; letter-spacing: -.2px; margin-bottom: 14px;
+    }
+    .h-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .h-table { width: 100%; min-width: 380px; border-collapse: collapse; font-size: 11px; }
+    .h-table th {
+      background: #111827; color: #fff;
+      padding: 8px 4px; text-align: center;
+      font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .h-table th:first-child { border-radius: 0; }
+    .h-table td {
+      padding: 6px 4px; text-align: center;
+      border-bottom: 1px solid var(--border); vertical-align: middle;
+    }
+    .h-table tr:last-child td { border-bottom: none; }
+    .h-table .per { background: var(--ground); font-weight: 900; color: var(--muted); font-size: 10px; width: 28px; }
+    .sub-chip {
+      display: inline-block; padding: 3px 7px; border-radius: 6px;
+      font-size: 10px; font-weight: 800; color: #fff; white-space: nowrap;
+    }
+
+    /* ── Eventos list ────────────────────────────────────────── */
+    .month-hdr {
+      font-size: 11px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--blue);
+      padding: 12px 0 6px; border-bottom: 2px solid var(--blue); margin-bottom: 10px;
+    }
+    .ev-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .ev-card {
+      background: var(--surface); border-radius: 12px;
+      padding: 12px 14px; display: flex; gap: 12px;
+      align-items: flex-start; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      border-left: 4px solid;
+    }
+    .ev-card.tp-prueba  { border-color: #E63946; }
+    .ev-card.tp-tarea   { border-color: #E9941B; }
+    .ev-card.tp-actividad { border-color: #2CB67D; }
+    .ev-badge {
+      min-width: 40px; text-align: center; border-radius: 8px;
+      padding: 4px 0; flex-shrink: 0;
+    }
+    .tp-prueba   .ev-badge { background: #FFF0F0; color: #E63946; }
+    .tp-tarea    .ev-badge { background: #FFF8E6; color: #E9941B; }
+    .tp-actividad .ev-badge { background: #F0FBF4; color: #2CB67D; }
+    .ev-badge-day { font-size: 22px; font-weight: 900; line-height: 1; display: block; }
+    .ev-badge-mon { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; display: block; }
+    .ev-info h3 { font-size: 14px; font-weight: 800; line-height: 1.3; margin-bottom: 2px; }
+    .ev-info p  { font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+    .mat-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 10px; font-weight: 800; color: #fff; margin-top: 5px;
+    }
+    .empty-msg { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+
+    /* ── Modals (bottom sheet) ───────────────────────────────── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(17,24,39,.55); z-index: 500;
+      align-items: flex-end;
+    }
+    .overlay.open { display: flex; }
+    @media (min-width: 600px) {
+      .overlay { align-items: center; justify-content: center; }
+    }
+    .sheet {
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      padding: 10px 20px 44px;
+      width: 100%; max-width: 600px;
+      max-height: 88vh; overflow-y: auto;
+      animation: slideUp .26s cubic-bezier(.25,.8,.25,1);
+    }
+    @media (min-width: 600px) { .sheet { border-radius: 20px; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+
+    .handle {
+      width: 36px; height: 4px; background: var(--border);
+      border-radius: 2px; margin: 0 auto 18px;
+    }
+    .sheet-title { font-size: 19px; font-weight: 900; letter-spacing: -.3px; margin-bottom: 4px; }
+
+    .feriado-banner {
+      display: none;
+      background: #FFFBEB; border: 1px solid #FDE68A;
+      border-radius: 8px; padding: 8px 12px;
+      font-size: 12px; font-weight: 800; color: #92400E; margin: 10px 0;
+    }
+    .sec-lbl {
+      font-size: 10px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted); margin: 16px 0 8px;
+    }
+
+    /* Subjects in day modal */
+    .sub-rows { display: flex; flex-direction: column; }
+    .sub-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .sub-row:last-child { border-bottom: none; }
+    .per-lbl { font-size: 10px; font-weight: 800; color: var(--muted); width: 16px; text-align: right; flex-shrink: 0; }
+
+    /* Events in day modal */
+    .day-ev {
+      padding: 10px 12px; border-radius: 10px;
+      margin-bottom: 6px; border-left: 3px solid;
+    }
+    .day-ev.tp-prueba   { background: #FFF0F0; border-color: #E63946; }
+    .day-ev.tp-tarea    { background: #FFF8E6; border-color: #E9941B; }
+    .day-ev.tp-actividad{ background: #F0FBF4; border-color: #2CB67D; }
+    .day-ev-title { font-size: 14px; font-weight: 800; }
+    .day-ev-meta  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .del-btn {
+      background: #FEE2E2; color: #E63946; border: none;
+      border-radius: 6px; font-size: 11px; font-weight: 800;
+      padding: 4px 10px; cursor: pointer; margin-top: 6px;
+      font-family: inherit;
+    }
+
+    /* Add event form */
+    .form-row { margin-bottom: 14px; }
+    .f-label {
+      display: block; font-size: 11px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: .5px; color: var(--text); margin-bottom: 5px;
+    }
+    .f-input {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 14px; color: var(--text); background: var(--surface);
+      outline: none; -webkit-appearance: none; font-family: inherit;
+    }
+    .f-input:focus { border-color: var(--blue); }
+    textarea.f-input { resize: vertical; min-height: 70px; }
+    .btn-save {
+      width: 100%; padding: 14px;
+      background: #111827; color: #fff; border: none;
+      border-radius: 12px; font-size: 15px; font-weight: 900;
+      cursor: pointer; letter-spacing: -.2px; margin-top: 6px;
+      font-family: inherit;
+    }
+    .btn-save:active { opacity: .88; }
+
+    /* FAB */
+    .fab {
+      position: fixed; bottom: 22px; right: 18px;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: #111827; color: #fff; border: none;
+      font-size: 30px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,.28); z-index: 400;
+      transition: transform .18s;
+      font-family: inherit;
+    }
+    .fab:active { transform: scale(.92); }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────── -->
+<header class="hdr">
+  <div class="hdr-text">
+    <strong>Calendario Eduardo Frei</strong>
+    <span>Colegio Eduardo Frei Montalva · Ñuñoa</span>
+  </div>
+  <div class="hdr-badge">2ºA</div>
+</header>
+
+<!-- ── Tabs ───────────────────────────────────────── -->
+<nav class="tabs">
+  <button class="tab active" data-tab="calendario">📅 Calendario</button>
+  <button class="tab"        data-tab="horario">📋 Horario</button>
+  <button class="tab"        data-tab="eventos">📌 Eventos</button>
+</nav>
+
+<!-- ── Content ───────────────────────────────────── -->
+<main class="content">
+
+  <!-- Calendario -->
+  <section id="panel-calendario" class="panel active">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" id="prev-m">◀</button>
+      <div class="cal-month" id="cal-title">Junio 2026</div>
+      <button class="cal-nav-btn" id="next-m">▶</button>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <div class="cal-head-cell">Lun</div>
+        <div class="cal-head-cell">Mar</div>
+        <div class="cal-head-cell">Mié</div>
+        <div class="cal-head-cell">Jue</div>
+        <div class="cal-head-cell">Vie</div>
+      </div>
+      <div class="cal-body" id="cal-body"></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#E63946"></div>Prueba</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#E9941B"></div>Tarea</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2CB67D"></div>Actividad</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#FDE68A;border:1px solid #F59E0B"></div>Feriado</div>
+    </div>
+  </section>
+
+  <!-- Horario -->
+  <section id="panel-horario" class="panel">
+    <div class="horario-card">
+      <h2>Horario Semanal · 2ºA</h2>
+      <div class="h-scroll">
+        <table class="h-table">
+          <thead>
+            <tr>
+              <th>Per.</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miércoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+            </tr>
+          </thead>
+          <tbody id="h-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Eventos -->
+  <section id="panel-eventos" class="panel">
+    <div id="ev-list"></div>
+  </section>
+
+</main>
+
+<!-- ── FAB ────────────────────────────────────────── -->
+<button class="fab" id="fab">＋</button>
+
+<!-- ── Day modal ──────────────────────────────────── -->
+<div class="overlay" id="day-overlay" role="dialog" aria-modal="true">
+  <div class="sheet" id="day-sheet">
+    <div class="handle"></div>
+    <div class="feriado-banner" id="feriado-banner"></div>
+    <h2 class="sheet-title" id="day-title">Lunes 1 de junio 2026</h2>
+
+    <div class="sec-lbl">Materias del día</div>
+    <div class="sub-rows" id="day-subs"></div>
+
+    <div id="day-evs-wrap">
+      <div class="sec-lbl">Evaluaciones y actividades</div>
+      <div id="day-evs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add event modal ────────────────────────────── -->
+<div class="overlay" id="add-overlay" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2 class="sheet-title">Agregar evento</h2>
+
+    <div class="form-row">
+      <label class="f-label" for="f-title">Título</label>
+      <input type="text" id="f-title" class="f-input" placeholder="Ej: Prueba de Matemática">
+    </div>
+    <div class="form-row">
+      <label class="f-label" for="f-date">Fecha</label>
+      <input type="date" id="f-date" class="f-input">
+    </div>
+    <div class="form-row">
+      <label class="f-label" for="f-tipo">Tipo</label>
+      <select id="f-tipo" class="f-input">
+        <option value="prueba">📝 Prueba / Evaluación</option>
+        <option value="tarea">📌 Tarea / Trabajo</option>
+        <option value="actividad">🎯 Actividad</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="f-label" for="f-mat">Materia</label>
+      <select id="f-mat" class="f-input">
+        <option>Lenguaje</option>
+        <option>Matemática</option>
+        <option>Ciencias</option>
+        <option>Historia</option>
+        <option>Inglés</option>
+        <option>Ed. Física</option>
+        <option>Arte</option>
+        <option>Música</option>
+        <option>Religión</option>
+        <option>Tecnología</option>
+        <option>D.Integral</option>
+        <option>H.V.S</option>
+        <option>F. Ciudadana</option>
+        <option>Orientación</option>
+        <option value="">Otra</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="f-label" for="f-desc">Descripción</label>
+      <textarea id="f-desc" class="f-input" placeholder="Detalles adicionales (opcional)"></textarea>
+    </div>
+    <button class="btn-save" id="btn-save">Guardar evento</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+
+const COLORS = {
+  'Lenguaje':    '#1D70B8',
+  'Matemática':  '#E63946',
+  'Ciencias':    '#2CB67D',
+  'Historia':    '#E9941B',
+  'Inglés':      '#7C3AED',
+  'Ed. Física':  '#0891B2',
+  'Arte':        '#EC4899',
+  'Música':      '#0D9488',
+  'Religión':    '#854D0E',
+  'Tecnología':  '#374151',
+  'D.Integral':  '#EA580C',
+  'H.V.S':      '#65A30D',
+  'F. Ciudadana':'#B45309',
+  'Orientación': '#9333EA',
+};
+
+// day: 1=Lun … 5=Vie, index 0=período 1
+const SCHED = {
+  1: ['Lenguaje','Lenguaje','Matemática','Matemática','Inglés','Inglés','Ed. Física','Ed. Física'],
+  2: ['Lenguaje','Lenguaje','Religión','Religión','Ciencias','Ciencias','Arte','Arte'],
+  3: ['Lenguaje','Lenguaje','Historia','Historia','D.Integral','D.Integral','Música','Música'],
+  4: ['Historia','F. Ciudadana','Ed. Física','Ed. Física','Matemática','Matemática','Tecnología','Orientación'],
+  5: ['Matemática','Matemática','Lenguaje','Lenguaje','Ciencias','H.V.S','',''],
+};
+
+const BASE = [
+  {id:'b01',date:'2026-06-01',title:'Trabajo práctico Inglés',tipo:'actividad',mat:'Inglés',desc:'Evaluación práctica en clases'},
+  {id:'b02',date:'2026-06-02',title:'Arte: Vasija Diaguita',tipo:'actividad',mat:'Arte',desc:'Trabajo práctico con rúbrica de evaluación'},
+  {id:'b03',date:'2026-06-05',title:'Tecnología: Laboratorio',tipo:'actividad',mat:'Tecnología',desc:'Trabajo práctico en clases de laboratorio'},
+  {id:'b04',date:'2026-06-06',title:'Tecnología: Laboratorio',tipo:'actividad',mat:'Tecnología',desc:'Trabajo práctico en clases de laboratorio'},
+  {id:'b05',date:'2026-06-07',title:'Tecnología: Laboratorio',tipo:'actividad',mat:'Tecnología',desc:'Trabajo práctico en clases de laboratorio'},
+  {id:'b06',date:'2026-06-08',title:'Historia: Trabajo Afiche',tipo:'actividad',mat:'Historia',desc:'Trabajo práctico en clases — no se necesitan materiales'},
+  {id:'b07',date:'2026-06-10',title:'Prueba Lenguaje',tipo:'prueba',mat:'Lenguaje',desc:'Unidad 3 — comprensión lectora (OA 23, 7, 6, 12, 21, 15)'},
+  {id:'b08',date:'2026-06-10',title:'Evaluación Música',tipo:'prueba',mat:'Música',desc:'Interpretación Canción Aymara'},
+  {id:'b09',date:'2026-06-11',title:'Prueba Historia',tipo:'prueba',mat:'Historia',desc:'Unidad 2 — sedentarios, nómades, Pueblos del Norte y Centro (Págs. 46–53)'},
+  {id:'b10',date:'2026-06-12',title:'Evaluación Lectura',tipo:'prueba',mat:'Lenguaje',desc:'"Tomás el elefante que quería ser perro salchicha" — aplicada en horario D.Integral'},
+  {id:'b11',date:'2026-06-15',title:'Prueba Ciencias',tipo:'prueba',mat:'Ciencias',desc:'Unidad 2 — Vertebrados e Invertebrados: clasificación, características, hábitat'},
+  {id:'b12',date:'2026-06-15',title:'Entregar: Afiche Invertebrados',tipo:'tarea',mat:'Ciencias',desc:'Trabajo de investigación realizado en casa — entregar listo'},
+  {id:'b13',date:'2026-05-03',title:'Clase Diversificada',tipo:'actividad',mat:'Matemática',desc:'Igualdades y desigualdades — evaluación en guía de trabajo'},
+  {id:'b14',date:'2026-05-09',title:'Prueba Matemática',tipo:'prueba',mat:'Matemática',desc:'Unidad 2 — números hasta 100, adición/sustracción, igualdad/desigualdad'},
+];
+
+const HOLIDAYS = [
+  {d:'2026-01-01',n:'Año Nuevo'},
+  {d:'2026-04-03',n:'Viernes Santo'},
+  {d:'2026-04-04',n:'Sábado Santo'},
+  {d:'2026-05-01',n:'Día del Trabajo'},
+  {d:'2026-05-21',n:'Glorias Navales'},
+  {d:'2026-06-21',n:'Pueblos Indígenas'},
+  {d:'2026-07-16',n:'Virgen del Carmen'},
+  {d:'2026-08-15',n:'Asunción de la Virgen'},
+  {d:'2026-09-18',n:'Independencia Nacional'},
+  {d:'2026-09-19',n:'Glorias del Ejército'},
+  {d:'2026-10-12',n:'Encuentro de Dos Mundos'},
+  {d:'2026-10-31',n:'Iglesias Evangélicas'},
+  {d:'2026-11-01',n:'Todos los Santos'},
+  {d:'2026-12-08',n:'Inmaculada Concepción'},
+  {d:'2026-12-25',n:'Navidad'},
+];
+
+const HDAY = {};
+HOLIDAYS.forEach(h => { HDAY[h.d] = h.n; });
+
+const MONTHS = ['enero','febrero','marzo','abril','mayo','junio',
+                'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MONTHS_S = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DAYS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+
+function ds(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+const _now = new Date();
+const TODAY = ds(_now);
+
+let viewY = 2026, viewM = 5; // June 2026
+
+// ═══════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════
+
+function getUser()   { try { return JSON.parse(localStorage.getItem('cfm2') || '[]'); } catch { return []; } }
+function setUser(a)  { localStorage.setItem('cfm2', JSON.stringify(a)); }
+function allEvents() { return [...BASE, ...getUser()]; }
+
+// ═══════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════
+
+function calWeeks(y, m) {
+  const first = new Date(y, m, 1);
+  const last  = new Date(y, m+1, 0);
+  const dow   = first.getDay(); // 0=Sun
+  const off   = dow === 0 ? 6 : dow - 1;
+  const cur   = new Date(first);
+  cur.setDate(cur.getDate() - off);
+
+  const weeks = [];
+  while (true) {
+    const week = [];
+    for (let i = 0; i < 5; i++) {
+      week.push({ dateStr: ds(cur), day: cur.getDate(), inMonth: cur.getMonth()===m });
+      cur.setDate(cur.getDate()+1);
+    }
+    weeks.push(week);
+    cur.setDate(cur.getDate()+2); // skip Sat+Sun
+    if (cur > last && weeks.length >= 4) break;
+    if (weeks.length >= 7) break;
+  }
+  return weeks;
+}
+
+function renderCal() {
+  const lbl = MONTHS[viewM];
+  document.getElementById('cal-title').textContent =
+    lbl.charAt(0).toUpperCase() + lbl.slice(1) + ' ' + viewY;
+
+  const evMap = {};
+  allEvents().forEach(e => { if (!evMap[e.date]) evMap[e.date]=[]; evMap[e.date].push(e); });
+
+  const body = document.getElementById('cal-body');
+  body.innerHTML = '';
+
+  calWeeks(viewY, viewM).forEach(week => {
+    week.forEach(cell => {
+      const el = document.createElement('div');
+      el.className = 'cal-cell';
+      if (!cell.inMonth)          el.classList.add('dim');
+      if (cell.dateStr === TODAY) el.classList.add('today');
+      if (HDAY[cell.dateStr])     el.classList.add('feriado');
+
+      let html = `<span class="day-n">${cell.day}</span>`;
+      if (HDAY[cell.dateStr]) {
+        html += `<div class="feriado-lbl">${HDAY[cell.dateStr]}</div>`;
+      }
+
+      const evs = evMap[cell.dateStr] || [];
+      if (evs.length) {
+        html += '<div class="cell-evs">';
+        evs.slice(0,2).forEach(e => {
+          html += `<div class="ev-chip tp-${e.tipo}">${e.title}</div>`;
+        });
+        if (evs.length > 2) html += `<div class="ev-more">+${evs.length-2} más</div>`;
+        html += '</div>';
+      }
+
+      el.innerHTML = html;
+      el.addEventListener('click', () => openDay(cell.dateStr));
+      body.appendChild(el);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// DAY MODAL
+// ═══════════════════════════════════════════════════
+
+function openDay(dateStr) {
+  const d   = new Date(dateStr + 'T12:00:00');
+  const dow = d.getDay(); // 0=Sun, 1=Mon..5=Fri
+  const dow1 = dow === 0 ? 7 : dow; // 1=Mon..7=Sun
+
+  document.getElementById('day-title').textContent =
+    `${DAYS_ES[dow]} ${d.getDate()} de ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
+  const banner = document.getElementById('feriado-banner');
+  if (HDAY[dateStr]) {
+    banner.textContent = '🎉 Feriado — ' + HDAY[dateStr];
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Subjects
+  const subs = SCHED[dow1];
+  const subsEl = document.getElementById('day-subs');
+  if (subs) {
+    subsEl.innerHTML = subs.map((m,i) => m ? `
+      <div class="sub-row">
+        <span class="per-lbl">${i+1}</span>
+        <span class="sub-chip" style="background:${COLORS[m]||'#6B7280'}">${m}</span>
+      </div>` : '').join('');
+  } else {
+    subsEl.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:8px 0">Fin de semana</p>';
+  }
+
+  // Events
+  const dayEvs = allEvents().filter(e => e.date === dateStr);
+  const wrap  = document.getElementById('day-evs-wrap');
+  const evsEl = document.getElementById('day-evs');
+  if (dayEvs.length) {
+    wrap.style.display = 'block';
+    evsEl.innerHTML = dayEvs.map(e => `
+      <div class="day-ev tp-${e.tipo}">
+        <div class="day-ev-title">${e.title}</div>
+        ${e.mat ? `<div class="day-ev-meta">📚 ${e.mat}</div>` : ''}
+        ${e.desc ? `<div class="day-ev-meta">${e.desc}</div>` : ''}
+        ${e.isUser ? `<button class="del-btn" onclick="delEv('${e.id}')">Eliminar</button>` : ''}
+      </div>`).join('');
+  } else {
+    wrap.style.display = 'none';
+  }
+
+  document.getElementById('day-overlay').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════
+// ADD / DELETE
+// ═══════════════════════════════════════════════════
+
+function openAdd(dateStr) {
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-date').value  = dateStr || TODAY;
+  document.getElementById('f-desc').value  = '';
+  document.getElementById('f-tipo').value  = 'prueba';
+  document.getElementById('f-mat').value   = 'Lenguaje';
+  document.getElementById('add-overlay').classList.add('open');
+}
+
+function saveEv() {
+  const title = document.getElementById('f-title').value.trim();
+  const date  = document.getElementById('f-date').value;
+  if (!title || !date) { alert('Completa el título y la fecha.'); return; }
+  const evs = getUser();
+  evs.push({
+    id:    'u' + Date.now(),
+    date, title,
+    tipo:  document.getElementById('f-tipo').value,
+    mat:   document.getElementById('f-mat').value,
+    desc:  document.getElementById('f-desc').value.trim(),
+    isUser:true,
+  });
+  setUser(evs);
+  document.getElementById('add-overlay').classList.remove('open');
+  renderCal();
+  renderEvList();
+}
+
+function delEv(id) {
+  setUser(getUser().filter(e => e.id !== id));
+  document.getElementById('day-overlay').classList.remove('open');
+  renderCal();
+  renderEvList();
+}
+
+// ═══════════════════════════════════════════════════
+// HORARIO TABLE
+// ═══════════════════════════════════════════════════
+
+function renderHorario() {
+  const tbody = document.getElementById('h-body');
+  let html = '';
+  for (let p = 0; p < 8; p++) {
+    html += `<tr><td class="per">${p+1}</td>`;
+    [1,2,3,4,5].forEach(d => {
+      const m = SCHED[d][p] || '';
+      html += m
+        ? `<td><span class="sub-chip" style="background:${COLORS[m]||'#6B7280'}">${m}</span></td>`
+        : '<td><span style="color:#D1D5DB">—</span></td>';
+    });
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+// EVENTS LIST
+// ═══════════════════════════════════════════════════
+
+function renderEvList() {
+  const upcoming = allEvents()
+    .filter(e => e.date >= TODAY)
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  const el = document.getElementById('ev-list');
+  if (!upcoming.length) {
+    el.innerHTML = '<div class="empty-msg">No hay eventos próximos</div>';
+    return;
+  }
+
+  const byMonth = {};
+  upcoming.forEach(e => {
+    const k = e.date.slice(0,7);
+    if (!byMonth[k]) byMonth[k] = [];
+    byMonth[k].push(e);
+  });
+
+  let html = '';
+  Object.entries(byMonth).forEach(([k, evs]) => {
+    const [yr, mn] = k.split('-');
+    const name = MONTHS[+mn-1];
+    html += `<div class="month-hdr">${name.charAt(0).toUpperCase()+name.slice(1)} ${yr}</div>`;
+    html += '<div class="ev-cards">';
+    evs.forEach(e => {
+      const d  = new Date(e.date+'T12:00:00');
+      const c  = COLORS[e.mat] || '#6B7280';
+      html += `
+        <div class="ev-card tp-${e.tipo}">
+          <div class="ev-badge">
+            <span class="ev-badge-day">${d.getDate()}</span>
+            <span class="ev-badge-mon">${MONTHS_S[d.getMonth()]}</span>
+          </div>
+          <div class="ev-info">
+            <h3>${e.title}</h3>
+            ${e.mat ? `<span class="mat-tag" style="background:${c}">${e.mat}</span>` : ''}
+            ${e.desc ? `<p>${e.desc}</p>` : ''}
+            ${e.isUser ? `<button class="del-btn" onclick="delEv('${e.id}')">Eliminar</button>` : ''}
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  document.getElementById(`panel-${name}`).classList.add('active');
+  if (name === 'eventos') renderEvList();
+}
+
+// ═══════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderCal();
+  renderHorario();
+
+  document.getElementById('prev-m').addEventListener('click', () => {
+    viewM--; if (viewM < 0) { viewM = 11; viewY--; } renderCal();
+  });
+  document.getElementById('next-m').addEventListener('click', () => {
+    viewM++; if (viewM > 11) { viewM = 0; viewY++; } renderCal();
+  });
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => switchTab(t.dataset.tab));
+  });
+
+  document.getElementById('fab').addEventListener('click', () => openAdd(TODAY));
+  document.getElementById('btn-save').addEventListener('click', saveEv);
+
+  document.getElementById('day-overlay').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+  document.getElementById('add-overlay').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
