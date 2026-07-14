@@ -589,7 +589,9 @@ function ds(d) {
 const _now = new Date();
 const TODAY = ds(_now);
 
-let viewY = 2026, viewM = 6; // July 2026
+// La vista inicial siempre sigue el mes real actual, así el día de hoy
+// queda marcado sin importar cuándo se abra la página.
+let viewY = _now.getFullYear(), viewM = _now.getMonth();
 
 // ═══════════════════════════════════════════════════
 // STORAGE
