@@ -370,7 +370,7 @@
   <section id="panel-calendario" class="panel active">
     <div class="cal-nav">
       <button class="cal-nav-btn" id="prev-m">◀</button>
-      <div class="cal-month" id="cal-title">Junio 2026</div>
+      <div class="cal-month" id="cal-title">Julio 2026</div>
       <button class="cal-nav-btn" id="next-m">▶</button>
     </div>
     <div class="cal-wrap">
@@ -536,6 +536,18 @@ const BASE = [
   {id:'b12',date:'2026-06-15',title:'Entregar: Afiche Invertebrados',tipo:'tarea',mat:'Ciencias',desc:'Trabajo de investigación realizado en casa — entregar listo'},
   {id:'b13',date:'2026-05-03',title:'Clase Diversificada',tipo:'actividad',mat:'Matemática',desc:'Igualdades y desigualdades — evaluación en guía de trabajo'},
   {id:'b14',date:'2026-05-09',title:'Prueba Matemática',tipo:'prueba',mat:'Matemática',desc:'Unidad 2 — números hasta 100, adición/sustracción, igualdad/desigualdad'},
+
+  // ── Calendarización Julio 2026 · 2° básicos ──────────────
+  {id:'j01',date:'2026-07-20',title:'Prueba Inglés',tipo:'prueba',mat:'Inglés',desc:'Clothes and colors — Vocabulary: dress, shoes, pants, t-shirt, socks, jacket, sweater, scarf, hat, coat, boots. Evaluación escrita'},
+  {id:'j02',date:'2026-07-20',title:'Evaluación Ed. Física',tipo:'prueba',mat:'Ed. Física',desc:'OA 1 — Habilidades motrices. Evaluación práctica'},
+  {id:'j03',date:'2026-07-21',title:'Arte: Paisaje en clase',tipo:'actividad',mat:'Arte',desc:'OA 2–4 — Confeccionan un paisaje usando figuras geométricas, tipos de líneas y colores primarios/secundarios. Materiales: block, témperas sólidas y scriptos. Trabajo práctico'},
+  {id:'j04',date:'2026-07-22',title:'Evaluación Música',tipo:'prueba',mat:'Música',desc:'Interpretación de la canción "Mari mari, Machi Machi"'},
+  {id:'j05',date:'2026-07-24',title:'Prueba Matemática',tipo:'prueba',mat:'Matemática',desc:'OA 19 — Medir y comparar longitudes con medidas estandarizadas y no estandarizadas; resolver situaciones problemáticas en torno a longitudes. Evaluación escrita'},
+  {id:'j06',date:'2026-07-28',title:'Entrega: Afiche Animales Nativos',tipo:'tarea',mat:'Ciencias',desc:'OA 5 — Animales nativos en peligro de extinción, deterioro del hábitat y medidas de protección. Afiche + disertación de animales nativos de Chile (la disertación se calendariza por grupos)'},
+  {id:'j07',date:'2026-07-30',title:'Prueba Historia',tipo:'prueba',mat:'Historia',desc:'OA 1 y OA 2 — Pueblos originarios de la zona centro (Mapuche y Rapa Nui) y pueblos de la zona sur. Evaluación escrita'},
+  {id:'j08',date:'2026-07-31',title:'Prueba Lenguaje: Lectura complementaria',tipo:'prueba',mat:'Lenguaje',desc:'OA 5–8 — Lectura complementaria "¡Ay cuánto me quiero!". Evaluación escrita'},
+  {id:'j09',date:'2026-07-20',title:'Dictado acumulativo (semanal)',tipo:'tarea',mat:'Lenguaje',desc:'Dictados acumulativos — evaluación escrita semanal'},
+  {id:'j10',date:'2026-07-27',title:'Dictado acumulativo (semanal)',tipo:'tarea',mat:'Lenguaje',desc:'Dictados acumulativos — evaluación escrita semanal'},
 ];
 
 const HOLIDAYS = [
@@ -577,7 +589,7 @@ function ds(d) {
 const _now = new Date();
 const TODAY = ds(_now);
 
-let viewY = 2026, viewM = 5; // June 2026
+let viewY = 2026, viewM = 6; // July 2026
 
 // ═══════════════════════════════════════════════════
 // STORAGE
