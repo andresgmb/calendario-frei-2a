@@ -479,6 +479,7 @@
         <option>H.V.S</option>
         <option>F. Ciudadana</option>
         <option>Orientación</option>
+        <option>Colegio</option>
         <option value="">Otra</option>
       </select>
     </div>
@@ -510,6 +511,7 @@ const COLORS = {
   'H.V.S':      '#65A30D',
   'F. Ciudadana':'#B45309',
   'Orientación': '#9333EA',
+  'Colegio':     '#64748B',
 };
 
 // day: 1=Lun … 5=Vie, index 0=período 1
@@ -576,7 +578,7 @@ const BASE = [
   {id:'o01',date:'2026-10-07',title:'Música: construcción de kaskawilla',tipo:'actividad',mat:'Música',desc:'Se construye en clase. Materiales: 10 tapas de bebida con un orificio al costado, 2 m de lana y un cilindro de plástico de unos 4 cm de alto (cortado de una botella de 1,5 L)'},
   {id:'o02',date:'2026-10-09',title:'Prueba Matemática',tipo:'prueba',mat:'Matemática',desc:'Sumas y restas, medición, figuras 2D y 3D, y estadística'},
   {id:'o03',date:'2026-10-21',title:'Muestra de Pueblos Originarios',tipo:'actividad',mat:'Historia',desc:'Se evalúan Historia, Arte, Tecnología y Música. Cada grupo arma un stand y los niños lo presentan a otros cursos. Ema está en el Grupo 2: Pueblo Mapuche, con 7 compañeros. Presentaciones a las 10:00 y 11:45'},
-  {id:'o04',date:'2026-10-21',title:'Entrega: papelógrafo y recuerdos (Muestra)',tipo:'tarea',mat:'Historia',desc:'Lo que le toca a Ema: papelógrafo sobre actividades económicas mapuche (agricultura, recolección de piñones, tejido, platería) y la bandera mapuche (Wenufoye); aprenderse 3 o 4 frases para explicarlo ese día; hacer un recuerdo pequeño para regalar; ayudar con la decoración del stand. Opcional: ir vestida de mapuche'},
+  {id:'o04',date:'2026-10-21',title:'Entrega: papelógrafo y recuerdos (Muestra)',tipo:'tarea',mat:'Historia',desc:'Lo que le toca a Ema: papelógrafo sobre actividades económicas mapuche (agricultura, recolección de piñones, tejido, platería) y la bandera mapuche (Wenufoye); aprenderse 3 o 4 frases para explicarlo ese día; hacer un recuerdo pequeño para regalar; ayudar con la decoración del stand. Opcional: ir vestida de mapuche (si va así, dejar el traje listo la noche anterior)'},
   {id:'o05',date:'2026-10-21',title:'Apoderado: armado del stand (8:00)',tipo:'actividad',mat:'Historia',desc:'Tiene que ir un apoderado sí o sí: llegar a las 8:00 para armar el stand y quedarse a las presentaciones de las 10:00 y 11:45. Hay que coordinar quién va. Mesa, letrero, decoración y los otros papelógrafos ya se repartieron entre los demás apoderados; falta confirmar el toldo'},
   {id:'o06',date:'2026-10-26',title:'Prueba Lenguaje: comprensión lectora',tipo:'prueba',mat:'Lenguaje',desc:'Prueba de comprensión lectora'},
   {id:'o07',date:'2026-10-26',title:'Inglés: actividad de Halloween',tipo:'actividad',mat:'Inglés',desc:'Actividad de Halloween en la clase de Inglés'},
@@ -585,6 +587,19 @@ const BASE = [
   {id:'o10',date:'2026-10-05',title:'Dictado de palabras (semanal)',tipo:'tarea',mat:'Lenguaje',desc:'Dictado de palabras — todas las semanas'},
   {id:'o11',date:'2026-10-19',title:'Dictado de palabras (semanal)',tipo:'tarea',mat:'Lenguaje',desc:'Dictado de palabras — todas las semanas'},
   {id:'o12',date:'2026-10-26',title:'Dictado de palabras (semanal)',tipo:'tarea',mat:'Lenguaje',desc:'Dictado de palabras — todas las semanas'},
+
+  // ── Semana de Aniversario · 12 al 18 de octubre ──────────
+  {id:'o13',date:'2026-10-12',title:'Aniversario: hacer la pancarta',tipo:'tarea',mat:'Colegio',desc:'Ema va en la Alianza Blanca, valor Respeto. Pancarta en hoja de block 99, con fondo blanco y un mensaje sobre el respeto. Se hace en el feriado. Comprar también la planta para el miércoles'},
+  {id:'o14',date:'2026-10-12',title:'Avanzar el papelógrafo mapuche (toda la semana)',tipo:'tarea',mat:'Historia',desc:'Durante la semana del 12 al 18: avanzar el papelógrafo de actividades económicas mapuche y la bandera Wenufoye'},
+  {id:'o15',date:'2026-10-12',title:'Practicar "Mari Mari machi machi" (toda la semana)',tipo:'tarea',mat:'Música',desc:'Durante la semana del 12 al 18: practicar la canción "Mari Mari machi machi"'},
+  {id:'o16',date:'2026-10-13',title:'Aniversario: tenida blanca y pancarta',tipo:'actividad',mat:'Colegio',desc:'Buzo del colegio + polera blanca + algo blanco de adorno. Llevar la pancarta. Llegar antes de las 9:00: la asistencia da puntos a la alianza'},
+  {id:'o17',date:'2026-10-14',title:'Aniversario: Lucatón y planta',tipo:'actividad',mat:'Colegio',desc:'Buzo del colegio + polera blanca. Llevar $1.000 (Lucatón) y una planta perenne con flores'},
+  {id:'o18',date:'2026-10-15',title:'Aniversario: colación para compartir',tipo:'actividad',mat:'Colegio',desc:'Entrada 8:20. Llevar colación saludable para compartir y una mantita. Salida 13:00: ese día no hay programa 4 a 7'},
+
+  // ── Semana de la Muestra · 19 al 25 de octubre ───────────
+  {id:'o19',date:'2026-10-19',title:'Papelógrafo terminado y recuerdo listo',tipo:'tarea',mat:'Historia',desc:'Para el lunes 19 y el martes 20: papelógrafo terminado y recuerdo listo. Ensayar con Ema sus frases para la exposición del miércoles'},
+  {id:'o20',date:'2026-10-19',title:'Leer "No funciona la tele" (toda la semana)',tipo:'tarea',mat:'Lenguaje',desc:'Unas páginas cada noche durante la semana del 19 al 25. La prueba del libro es el viernes 30'},
+  {id:'o21',date:'2026-10-23',title:'Pintura y ornamentación del colegio (opcional)',tipo:'actividad',mat:'Colegio',desc:'Opcional para apoderados. Viernes 23 de 15:00 a 18:00 y sábado 24 de 9:00 a 13:00'},
 ];
 
 const HOLIDAYS = [
